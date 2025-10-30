@@ -17,7 +17,7 @@ export const childSchema = z.object({
 })
 
 export const childFormSchema = childSchema.extend({
-  owner_profile_id: z.string().uuid(),
+  owner_profile_id: z.string().uuid().optional(),
 })
 
 // FMS scores schema - 7 basic movements (1-5 scale)

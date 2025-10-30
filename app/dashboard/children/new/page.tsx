@@ -5,17 +5,19 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { childFormSchema, type ChildFormData } from '@/lib/validations/schemas'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { formatAge } from '@/lib/utils/age'
 
 export default function NewChildPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [calculatedAge, setCalculatedAge] = useState<string>('')
   const supabase = createClient()
 
   const form = useForm<ChildFormData>({
@@ -26,9 +28,21 @@ export default function NewChildPage() {
       birthdate: '',
       grade: '',
       notes: '',
-      owner_profile_id: '',
     },
   })
+
+  // Watch birthdate field and calculate age
+  const birthdate = form.watch('birthdate')
+  
+  // Calculate age when birthdate changes
+  const handleBirthdateChange = (value: string) => {
+    if (value) {
+      const age = formatAge(value)
+      setCalculatedAge(age)
+    } else {
+      setCalculatedAge('')
+    }
+  }
 
   const onSubmit = async (data: ChildFormData) => {
     setIsSubmitting(true)
@@ -112,8 +126,20 @@ export default function NewChildPage() {
                   <FormItem>
                     <FormLabel>生年月日</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input 
+                        type="date" 
+                        {...field} 
+                        onChange={(e) => {
+                          field.onChange(e)
+                          handleBirthdateChange(e.target.value)
+                        }}
+                      />
                     </FormControl>
+                    {calculatedAge && (
+                      <FormDescription className="text-sky-600 font-medium">
+                        年齢: {calculatedAge}
+                      </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
