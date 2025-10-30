@@ -56,13 +56,13 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      assessments: assessments.map((assessment) => ({
+      assessments: (assessments as any[]).map((assessment: any) => ({
         id: assessment.id,
         assessed_at: assessment.assessed_at,
         memo: assessment.memo,
-        coach: (assessment as any).profiles?.full_name,
-        fms_scores: (assessment as any).fms_scores,
-        smc_scores: (assessment as any).smc_scores,
+        coach: assessment.profiles?.full_name,
+        fms_scores: assessment.fms_scores,
+        smc_scores: assessment.smc_scores,
       })),
     })
   } catch (error: any) {
