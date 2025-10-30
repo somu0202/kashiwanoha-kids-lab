@@ -53,17 +53,18 @@ export async function GET(request: Request) {
 
     // For now, return JSON data instead of PDF
     // PDF generation will be implemented in a future update
+    const assessmentData = assessment as any
     return NextResponse.json({
       message: 'PDF生成機能は現在準備中です。評価データを表示しています。',
       data: {
-        child: assessment.children,
+        child: assessmentData.children,
         assessment: {
-          assessed_at: assessment.assessed_at,
-          memo: assessment.memo,
+          assessed_at: assessmentData.assessed_at,
+          memo: assessmentData.memo,
         },
-        coach: assessment.profiles,
-        fms_scores: assessment.fms_scores,
-        smc_scores: assessment.smc_scores,
+        coach: assessmentData.profiles,
+        fms_scores: assessmentData.fms_scores,
+        smc_scores: assessmentData.smc_scores,
       }
     })
   } catch (error: any) {

@@ -42,8 +42,10 @@ export default async function SharedAssessmentPage({
     )
   }
 
+  const sharedLinkData = sharedLink as any
+
   // Check if link is expired
-  if (isTokenExpired(sharedLink.expires_at)) {
+  if (isTokenExpired(sharedLinkData.expires_at)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Card className="max-w-md">
@@ -61,7 +63,7 @@ export default async function SharedAssessmentPage({
   }
 
   // Check if one-time link has been used
-  if (isTokenUsed(sharedLink.one_time, sharedLink.accessed_at)) {
+  if (isTokenUsed(sharedLinkData.one_time, sharedLinkData.accessed_at)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Card className="max-w-md">
@@ -79,11 +81,11 @@ export default async function SharedAssessmentPage({
   }
 
   // Update accessed_at if one-time
-  if (sharedLink.one_time && !sharedLink.accessed_at) {
+  if (sharedLinkData.one_time && !sharedLinkData.accessed_at) {
     await supabase
       .from('shared_links')
-      .update({ accessed_at: new Date().toISOString() } as any)
-      .eq('id', sharedLink.id)
+      .update({ accessed_at: new Date().toISOString() } as never)
+      .eq('id', sharedLinkData.id)
   }
 
   // Get assessment data
@@ -100,17 +102,18 @@ export default async function SharedAssessmentPage({
         full_name
       )
     `)
-    .eq('id', sharedLink.assessment_id)
+    .eq('id', sharedLinkData.assessment_id)
     .single()
 
   if (error || !assessment) {
     notFound()
   }
 
-  const child = assessment.children
-  const fmsScores = assessment.fms_scores
-  const smcScores = assessment.smc_scores
-  const coach = assessment.profiles
+  const assessmentData = assessment as any
+  const child = assessmentData.children
+  const fmsScores = assessmentData.fms_scores
+  const smcScores = assessmentData.smc_scores
+  const coach = assessmentData.profiles
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -162,7 +165,7 @@ export default async function SharedAssessmentPage({
                 <div className="flex items-center gap-2">
                   <span className="text-gray-600">評価日:</span>
                   <span className="font-medium">
-                    {format(new Date(assessment.assessed_at), 'yyyy年M月d日', {
+                    {format(new Date(assessmentData.assessed_at), 'yyyy年M月d日', {
                       locale: ja,
                     })}
                   </span>
@@ -270,14 +273,14 @@ export default async function SharedAssessmentPage({
           </Card>
 
           {/* Memo */}
-          {assessment.memo && (
+          {assessmentData.memo && (
             <Card>
               <CardHeader>
                 <CardTitle>所見・次回のフォーカス</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                  <p className="whitespace-pre-wrap">{assessment.memo}</p>
+                  <p className="whitespace-pre-wrap">{assessmentData.memo}</p>
                 </div>
               </CardContent>
             </Card>

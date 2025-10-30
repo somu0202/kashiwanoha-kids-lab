@@ -32,7 +32,7 @@ export default async function ChildrenPage() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {children.map((child) => (
+          {children.map((child: any) => (
             <Link key={child.id} href={`/dashboard/children/${child.id}`}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader>

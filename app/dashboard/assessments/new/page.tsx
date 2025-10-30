@@ -37,7 +37,7 @@ export default async function NewAssessmentPage({
               </p>
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
-                {children.map((child) => (
+                {children.map((child: any) => (
                   <a
                     key={child.id}
                     href={`/dashboard/assessments/new?child=${child.id}`}
@@ -70,6 +70,8 @@ export default async function NewAssessmentPage({
     redirect('/dashboard/assessments/new')
   }
 
+  const childData = child as any
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
@@ -78,8 +80,8 @@ export default async function NewAssessmentPage({
       </div>
 
       <AssessmentForm
-        childId={child.id}
-        childName={`${child.last_name} ${child.first_name}`}
+        childId={childData.id}
+        childName={`${childData.last_name} ${childData.first_name}`}
       />
     </div>
   )

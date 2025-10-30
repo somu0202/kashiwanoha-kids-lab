@@ -42,11 +42,12 @@ export async function POST(request: Request) {
       .single()
 
     if (error) throw error
+    if (!sharedLink) throw new Error('共有リンクの作成に失敗しました')
 
     const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/share/${token}`
 
     return NextResponse.json({
-      ...sharedLink,
+      ...(sharedLink as any),
       share_url: shareUrl,
     })
   } catch (error: any) {
@@ -91,7 +92,7 @@ export async function GET(request: Request) {
     if (error) throw error
 
     // Add share URLs
-    const linksWithUrls = links.map((link) => ({
+    const linksWithUrls = (links || []).map((link: any) => ({
       ...link,
       share_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/share/${link.token}`,
     }))

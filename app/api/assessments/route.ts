@@ -31,10 +31,11 @@ export async function POST(request: Request) {
       .single()
 
     if (assessmentError) throw assessmentError
+    if (!assessment) throw new Error('評価の作成に失敗しました')
 
     // Create FMS scores
     const { error: fmsError } = await supabase.from('fms_scores').insert({
-      assessment_id: assessment.id,
+      assessment_id: (assessment as any).id,
       ...validatedData.fms_scores,
     } as any)
 
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
       validatedData.smc_scores.paper_ball_throw_m
     ) {
       const { error: smcError } = await supabase.from('smc_scores').insert({
-        assessment_id: assessment.id,
+        assessment_id: (assessment as any).id,
         shuttle_run_sec: validatedData.smc_scores.shuttle_run_sec,
         paper_ball_throw_m: validatedData.smc_scores.paper_ball_throw_m,
       } as any)

@@ -38,10 +38,11 @@ export default async function AssessmentDetailPage({
     notFound()
   }
 
-  const child = assessment.children
-  const fmsScores = assessment.fms_scores
-  const smcScores = assessment.smc_scores
-  const coach = assessment.profiles
+  const assessmentData = assessment as any
+  const child = assessmentData.children
+  const fmsScores = assessmentData.fms_scores
+  const smcScores = assessmentData.smc_scores
+  const coach = assessmentData.profiles
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -60,7 +61,7 @@ export default async function AssessmentDetailPage({
             </span>
           </Button>
           <Button asChild className="bg-sky-500 hover:bg-sky-600">
-            <Link href={`/dashboard/assessments/${assessment.id}/share`}>
+            <Link href={`/dashboard/assessments/${assessmentData.id}/share`}>
               🔗 共有リンク作成
             </Link>
           </Button>
@@ -95,7 +96,7 @@ export default async function AssessmentDetailPage({
             <div className="flex items-center gap-2">
               <span className="text-gray-600">評価日:</span>
               <span className="font-medium">
-                {format(new Date(assessment.assessed_at), 'yyyy年M月d日', {
+                {format(new Date(assessmentData.assessed_at), 'yyyy年M月d日', {
                   locale: ja,
                 })}
               </span>
@@ -203,14 +204,14 @@ export default async function AssessmentDetailPage({
       </Card>
 
       {/* Memo */}
-      {assessment.memo && (
+      {assessmentData.memo && (
         <Card>
           <CardHeader>
             <CardTitle>所見・次回のフォーカス</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <p className="whitespace-pre-wrap">{assessment.memo}</p>
+              <p className="whitespace-pre-wrap">{assessmentData.memo}</p>
             </div>
           </CardContent>
         </Card>
