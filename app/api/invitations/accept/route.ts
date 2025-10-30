@@ -76,7 +76,7 @@ export async function POST(request: Request) {
 
     if (existingProfile) {
       // Profile exists, just create relationship if it's a parent
-      if (existingProfile.role !== 'parent') {
+      if ((existingProfile as any).role !== 'parent') {
         return NextResponse.json(
           { error: 'このアカウントはすでに別の役割で登録されています' },
           { status: 400 }

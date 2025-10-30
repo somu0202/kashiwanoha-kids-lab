@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       .eq('id', user.id)
       .single()
 
-    if (!profile || !['admin', 'coach'].includes(profile.role)) {
+    if (!profile || !['admin', 'coach'].includes((profile as any).role)) {
       return NextResponse.json(
         { error: '権限がありません' },
         { status: 403 }

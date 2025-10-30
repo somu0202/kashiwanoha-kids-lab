@@ -19,17 +19,14 @@ interface AssessmentData {
     run: number
     balance_beam: number
     jump: number
-    throw_ball: number
-    catch_ball: number
+    throw: number
+    catch: number
     dribble: number
     roll: number
   }
   smc_scores?: {
-    height?: number
-    weight?: number
-    sit_and_reach?: number
-    grip_strength_left?: number
-    grip_strength_right?: number
+    shuttle_run_sec?: number
+    paper_ball_throw_m?: number
   }
 }
 
@@ -86,8 +83,8 @@ export async function generateAssessmentPDF(
     { label: '走る', value: data.fms_scores.run },
     { label: '平均台', value: data.fms_scores.balance_beam },
     { label: '跳ぶ', value: data.fms_scores.jump },
-    { label: '投げる', value: data.fms_scores.throw_ball },
-    { label: '捕る', value: data.fms_scores.catch_ball },
+    { label: '投げる', value: data.fms_scores.throw },
+    { label: '捕る', value: data.fms_scores.catch },
     { label: 'ドリブル', value: data.fms_scores.dribble },
     { label: '転がす', value: data.fms_scores.roll },
   ]
@@ -105,24 +102,12 @@ export async function generateAssessmentPDF(
     yPosition += 8
 
     pdf.setFontSize(10)
-    if (data.smc_scores.height) {
-      pdf.text(`身長: ${data.smc_scores.height} cm`, 20, yPosition)
+    if (data.smc_scores.shuttle_run_sec) {
+      pdf.text(`10m往復走: ${data.smc_scores.shuttle_run_sec} 秒`, 20, yPosition)
       yPosition += 6
     }
-    if (data.smc_scores.weight) {
-      pdf.text(`体重: ${data.smc_scores.weight} kg`, 20, yPosition)
-      yPosition += 6
-    }
-    if (data.smc_scores.sit_and_reach) {
-      pdf.text(`長座体前屈: ${data.smc_scores.sit_and_reach} cm`, 20, yPosition)
-      yPosition += 6
-    }
-    if (data.smc_scores.grip_strength_left) {
-      pdf.text(`握力(左): ${data.smc_scores.grip_strength_left} kg`, 20, yPosition)
-      yPosition += 6
-    }
-    if (data.smc_scores.grip_strength_right) {
-      pdf.text(`握力(右): ${data.smc_scores.grip_strength_right} kg`, 20, yPosition)
+    if (data.smc_scores.paper_ball_throw_m) {
+      pdf.text(`紙ボール投げ: ${data.smc_scores.paper_ball_throw_m} m`, 20, yPosition)
       yPosition += 6
     }
     yPosition += 6
