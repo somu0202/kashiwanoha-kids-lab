@@ -67,6 +67,9 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const assessmentId = searchParams.get('id')
+
     const supabase = await createClient()
 
     // Check authentication
@@ -78,6 +81,40 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
     }
 
+    // If ID is provided, fetch single assessment
+    if (assessmentId) {
+      const { data: assessment, error } = await supabase
+        .from('assessments')
+        .select(`
+          *,
+          children (
+            id,
+            first_name,
+            last_name,
+            birthdate,
+            grade
+          ),
+          fms_scores (*),
+          smc_scores (*),
+          profiles!assessments_coach_id_fkey (
+            full_name
+          )
+        `)
+        .eq('id', assessmentId)
+        .single()
+
+      if (error) throw error
+      if (!assessment) {
+        return NextResponse.json(
+          { error: '評価が見つかりません' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json({ assessment })
+    }
+
+    // Otherwise, fetch all assessments
     const { data: assessments, error } = await supabase
       .from('assessments')
       .select(`

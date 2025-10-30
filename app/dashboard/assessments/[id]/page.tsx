@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RadarChartComponent } from '@/components/dashboard/radar-chart'
+import { PDFDownloadButton } from '@/components/dashboard/pdf-download-button'
 import { formatAge } from '@/lib/utils/age'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -44,6 +45,25 @@ export default async function AssessmentDetailPage({
   const smcScores = assessmentData.smc_scores
   const coach = assessmentData.profiles
 
+  // Prepare data for PDF generation
+  const pdfData = {
+    child: {
+      first_name: child.first_name,
+      last_name: child.last_name,
+      birthdate: child.birthdate,
+      grade: child.grade || '',
+    },
+    assessment: {
+      assessed_at: assessmentData.assessed_at,
+      memo: assessmentData.memo,
+    },
+    coach: {
+      full_name: coach.full_name,
+    },
+    fms_scores: fmsScores,
+    smc_scores: smcScores || undefined,
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
@@ -55,10 +75,11 @@ export default async function AssessmentDetailPage({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline" disabled title="PDF機能は準備中です">
-            <span className="cursor-not-allowed">
-              📄 PDFダウンロード（準備中）
-            </span>
+          <PDFDownloadButton assessmentData={pdfData} />
+          <Button asChild variant="outline" className="border-purple-300 hover:bg-purple-50">
+            <Link href={`/dashboard/assessments/${assessmentData.id}/compare`}>
+              📊 過去評価と比較
+            </Link>
           </Button>
           <Button asChild className="bg-sky-500 hover:bg-sky-600">
             <Link href={`/dashboard/assessments/${assessmentData.id}/share`}>
@@ -117,7 +138,11 @@ export default async function AssessmentDetailPage({
             <CardTitle>7つの基礎動作レーダーチャート</CardTitle>
           </CardHeader>
           <CardContent>
-            <RadarChartComponent data={fmsScores} showLegend={false} />
+            <RadarChartComponent 
+              data={fmsScores} 
+              showLegend={false} 
+              id="radar-chart-for-pdf"
+            />
           </CardContent>
         </Card>
 

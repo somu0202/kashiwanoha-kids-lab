@@ -8,9 +8,10 @@ interface RadarChartComponentProps {
   data: FMSScoresFormData
   title?: string
   showLegend?: boolean
+  id?: string
 }
 
-export function RadarChartComponent({ data, title, showLegend = true }: RadarChartComponentProps) {
+export function RadarChartComponent({ data, title, showLegend = true, id }: RadarChartComponentProps) {
   // Transform FMS data for recharts
   const chartData = FMS_ORDER.map((key) => ({
     subject: FMS_CATEGORIES[key].label,
@@ -19,7 +20,7 @@ export function RadarChartComponent({ data, title, showLegend = true }: RadarCha
   }))
 
   return (
-    <div className="w-full">
+    <div className="w-full" id={id}>
       {title && (
         <h3 className="text-lg font-semibold text-center mb-4">{title}</h3>
       )}

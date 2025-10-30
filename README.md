@@ -20,31 +20,24 @@
 - ✅ **評価フォーム**: 7つの基礎動作の5段階評価（1-5）
 - ✅ **SMC-Kids測定**: 10m折り返し走（秒）、紙ボール投げ（メートル）
 - ✅ **レーダーチャート**: Rechartsによる可視化
+- ✅ **PDF生成機能**: jsPDF + html2canvasによる評価レポートダウンロード
+- ✅ **比較機能**: 過去評価との経時比較・成長トラッキング
+- ✅ **保護者招待システム**: トークンベースの招待・保護者ダッシュボード
 - ✅ **共有リンク機能**: 期限付き・ワンタイム対応のシェアリンク生成
 - ✅ **Row Level Security**: Supabase RLSによる役割ベースアクセス制御
 - ✅ **レスポンシブデザイン**: モバイル・タブレット・デスクトップ対応
 
 ### 🔄 実装予定機能（優先順位順）
 
-#### 高優先度
-1. **PDF生成機能**: A4レポート自動生成（現在準備中）
-   - Next.js 16互換ライブラリの選定中
-   - 代替案: Puppeteer/jsPDF検討中
-
-#### 中優先度
-2. **比較機能**: 時系列での成長追跡
-   - 同じ子どもの過去評価との比較
-   - 2つの評価の並列レーダーチャート表示
-
-3. **保護者招待システム**: メール招待機能
-   - 保護者専用ダッシュボード
-   - 子どもとの紐付け機能
-
 #### 低優先度
-4. **データ分析機能**
+1. **データ分析機能**
    - 年齢別平均値表示
    - 成長トレンドグラフ
    - グループ間比較
+
+2. **メール送信機能**
+   - 保護者招待メール自動送信（現在は手動URL共有）
+   - 評価完了通知メール
 
 ## 🏗️ 技術スタック
 
@@ -82,7 +75,7 @@
 
 ## 📊 データベース設計
 
-### テーブル構成（6テーブル）
+### テーブル構成（8テーブル）
 
 #### 1. profiles
 ユーザープロファイル（auth.usersの拡張）
@@ -161,6 +154,30 @@ SMC-Kids測定結果
 - updated_at: TIMESTAMP
 ```
 
+#### 7. parent_invitations
+保護者招待管理
+```sql
+- id: UUID (PRIMARY KEY)
+- email: TEXT
+- token: TEXT (UNIQUE)
+- child_id: UUID (FK → children.id)
+- invited_by: UUID (FK → profiles.id)
+- status: TEXT ('pending', 'accepted', 'expired')
+- expires_at: TIMESTAMP
+- created_at: TIMESTAMP
+- accepted_at: TIMESTAMP (nullable)
+```
+
+#### 8. parent_child_relationships
+保護者-子ども関係管理
+```sql
+- id: UUID (PRIMARY KEY)
+- parent_profile_id: UUID (FK → profiles.id)
+- child_id: UUID (FK → children.id)
+- created_at: TIMESTAMP
+- UNIQUE (parent_profile_id, child_id)
+```
+
 ### RLS (Row Level Security) ポリシー
 
 #### Admin/Coach
@@ -215,15 +232,16 @@ npm install
 
 ### 4. データベースマイグレーション
 
-Supabase SQL Editorで以下のファイルを実行:
+Supabase SQL Editorで以下のファイルを順番に実行:
 
 ```bash
 supabase/migrations/00001_initial_schema.sql
+supabase/migrations/00002_parent_invitations.sql
 ```
 
 マイグレーションには以下が含まれます:
-- 6テーブルの作成
-- RLSポリシーの設定
+- 8テーブルの作成
+- RLSポリシーの設定（36ポリシー）
 - トリガーの設定
 - インデックスの作成
 
@@ -405,8 +423,29 @@ xs: text-xs (12px)
 - `GET /api/assessments` - 評価一覧取得（認証必須）
 
 ### PDF生成
-- `GET /api/pdf?id={assessment_id}` - PDFダウンロード
-  - ⚠️ 現在準備中：JSONデータを返却
+- クライアントサイドで生成（jsPDF + html2canvas）
+- 評価詳細ページから直接ダウンロード可能
+- レーダーチャート画像も含めてPDF化
+
+### 比較機能
+- `GET /api/assessments/compare?childId={child_id}` - 子どもの評価履歴取得
+- `GET /dashboard/assessments/{id}/compare` - 評価比較ページ
+  - 2つのレーダーチャート並列表示
+  - 詳細スコア比較テーブル
+  - 変化量・変化率の自動計算表示
+
+### 保護者招待
+- `POST /api/invitations/send` - 招待送信
+  ```json
+  {
+    "email": "parent@example.com",
+    "childId": "uuid"
+  }
+  ```
+- `GET /api/invitations/validate?token={token}` - 招待トークン検証
+- `POST /api/invitations/accept` - 招待受諾（プロフィール・関係作成）
+- `GET /invitations/accept/{token}` - 招待受諾ページ（認証不要）
+- `GET /dashboard/parent` - 保護者専用ダッシュボード
 
 ### 共有リンク
 - `POST /api/share` - 共有リンク作成
@@ -648,10 +687,9 @@ kashiwanoha-kids-lab/
 ## 🐛 既知の問題・制限事項
 
 ### 現在の制限
-1. **PDF生成機能**: 準備中（Next.js 16 Turbopack互換性の問題）
-   - 代替案検討中（Puppeteer / jsPDF）
-2. **比較機能**: 未実装
-3. **保護者招待システム**: 未実装
+1. **メール送信機能**: 未実装
+   - 保護者招待メールは手動でURLを共有
+   - 将来的にResend/SendGrid等で自動送信予定
 
 ### 既知の問題
 - なし（現時点）
@@ -660,6 +698,9 @@ kashiwanoha-kids-lab/
 - ✅ Supabase型エラー（as any型アサーションで解決）
 - ✅ Next.js 16設定警告（turbo設定削除）
 - ✅ middleware警告（proxy.tsに移行）
+- ✅ PDF生成機能（jsPDF + html2canvasで実装完了）
+- ✅ 比較機能（デュアルレーダーチャート実装完了）
+- ✅ 保護者招待システム（トークンベース招待実装完了）
 
 ## 🔄 バックアップ・リストア
 
@@ -742,17 +783,23 @@ https://github.com/somu0202/kashiwanoha-kids-lab/issues
 
 ## 📅 更新履歴
 
-### 2025-10-30
+### 2025-10-30 (v1.1.0)
+- ✅ **PDF生成機能実装** - jsPDF + html2canvasでクライアントサイド生成
+- ✅ **比較機能実装** - 過去評価との経時比較・デュアルレーダーチャート
+- ✅ **保護者招待システム実装** - トークンベース招待・保護者ダッシュボード
+- ✅ データベース拡張（8テーブル、36 RLSポリシー）
+- ✅ 子ども詳細ページ追加
+
+### 2025-10-30 (v1.0.0)
 - ✅ 初回リリース
-- ✅ Next.js 14 + Supabaseで基本機能実装
+- ✅ Next.js 16 + Supabaseで基本機能実装
 - ✅ Vercelへのデプロイ完了
-- ✅ RLS設定完了
+- ✅ RLS設定完了（26ポリシー）
 - ✅ 共有リンク機能実装
 
 ### 今後の予定
-- 📅 2025-11: PDF生成機能実装
-- 📅 2025-12: 比較機能実装
-- 📅 2026-01: 保護者招待システム実装
+- 📅 2025-11: メール送信機能実装（保護者招待・評価通知）
+- 📅 2025-12: データ分析機能実装（年齢別平均値・成長トレンド）
 
 ---
 
