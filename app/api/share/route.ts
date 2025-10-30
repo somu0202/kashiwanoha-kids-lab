@@ -37,7 +37,7 @@ export async function POST(request: Request) {
         token,
         expires_at: expires_at.toISOString(),
         one_time,
-      })
+      } as any)
       .select()
       .single()
 

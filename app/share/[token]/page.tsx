@@ -82,7 +82,7 @@ export default async function SharedAssessmentPage({
   if (sharedLink.one_time && !sharedLink.accessed_at) {
     await supabase
       .from('shared_links')
-      .update({ accessed_at: new Date().toISOString() })
+      .update({ accessed_at: new Date().toISOString() } as any)
       .eq('id', sharedLink.id)
   }
 

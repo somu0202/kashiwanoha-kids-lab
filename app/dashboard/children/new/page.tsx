@@ -46,7 +46,7 @@ export default function NewChildPage() {
       const { error } = await supabase.from('children').insert({
         ...data,
         owner_profile_id: user.id,
-      })
+      } as any)
 
       if (error) throw error
 

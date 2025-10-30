@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         assessed_at: validatedData.assessed_at,
         coach_id: user.id,
         memo: validatedData.memo,
-      })
+      } as any)
       .select()
       .single()
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     const { error: fmsError } = await supabase.from('fms_scores').insert({
       assessment_id: assessment.id,
       ...validatedData.fms_scores,
-    })
+    } as any)
 
     if (fmsError) throw fmsError
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         assessment_id: assessment.id,
         shuttle_run_sec: validatedData.smc_scores.shuttle_run_sec,
         paper_ball_throw_m: validatedData.smc_scores.paper_ball_throw_m,
-      })
+      } as any)
 
       if (smcError) throw smcError
     }
