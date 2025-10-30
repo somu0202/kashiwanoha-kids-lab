@@ -54,10 +54,10 @@ export default async function AssessmentDetailPage({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link href={`/api/pdf?id=${assessment.id}`} target="_blank">
-              📄 PDFダウンロード
-            </Link>
+          <Button asChild variant="outline" disabled title="PDF機能は準備中です">
+            <span className="cursor-not-allowed">
+              📄 PDFダウンロード（準備中）
+            </span>
           </Button>
           <Button asChild className="bg-sky-500 hover:bg-sky-600">
             <Link href={`/dashboard/assessments/${assessment.id}/share`}>

@@ -1,8 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { renderToBuffer } from '@react-pdf/renderer'
-import { createElement } from 'react'
-import { AssessmentReport } from '@/lib/pdf/report'
 
 export async function GET(request: Request) {
   try {
@@ -54,33 +51,25 @@ export async function GET(request: Request) {
       )
     }
 
-    // Prepare data for PDF
-    const reportData = {
-      child: assessment.children,
-      assessment: {
-        assessed_at: assessment.assessed_at,
-      },
-      coach: assessment.profiles,
-      fms_scores: assessment.fms_scores,
-      smc_scores: assessment.smc_scores,
-      memo: assessment.memo,
-    }
-
-    // Generate PDF using createElement to avoid JSX parsing issues
-    const pdfDocument = createElement(AssessmentReport, { data: reportData })
-    const buffer = await renderToBuffer(pdfDocument)
-
-    // Return PDF
-    return new NextResponse(buffer, {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="assessment-${assessmentId}.pdf"`,
-      },
+    // For now, return JSON data instead of PDF
+    // PDF generation will be implemented in a future update
+    return NextResponse.json({
+      message: 'PDF生成機能は現在準備中です。評価データを表示しています。',
+      data: {
+        child: assessment.children,
+        assessment: {
+          assessed_at: assessment.assessed_at,
+          memo: assessment.memo,
+        },
+        coach: assessment.profiles,
+        fms_scores: assessment.fms_scores,
+        smc_scores: assessment.smc_scores,
+      }
     })
   } catch (error: any) {
-    console.error('Error generating PDF:', error)
+    console.error('Error fetching assessment data:', error)
     return NextResponse.json(
-      { error: error.message || 'PDFの生成に失敗しました' },
+      { error: error.message || 'データの取得に失敗しました' },
       { status: 500 }
     )
   }

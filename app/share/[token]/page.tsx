@@ -129,10 +129,8 @@ export default async function SharedAssessmentPage({
 
           {/* PDF Download Button */}
           <div className="flex justify-center">
-            <Button asChild className="bg-sky-500 hover:bg-sky-600">
-              <a href={`/api/pdf?id=${assessment.id}`} target="_blank">
-                📄 PDFをダウンロード
-              </a>
+            <Button disabled className="bg-gray-400 cursor-not-allowed" title="PDF機能は準備中です">
+              📄 PDFダウンロード（準備中）
             </Button>
           </div>
 
