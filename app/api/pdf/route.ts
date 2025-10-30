@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { renderToStream } from '@react-pdf/renderer'
+import { renderToBuffer } from '@react-pdf/renderer'
+import { createElement } from 'react'
 import { AssessmentReport } from '@/lib/pdf/report'
 
 export async function GET(request: Request) {
@@ -65,17 +66,9 @@ export async function GET(request: Request) {
       memo: assessment.memo,
     }
 
-    // Generate PDF
-    const stream = await renderToStream(
-      <AssessmentReport data={reportData} />
-    )
-
-    // Convert stream to buffer
-    const chunks: Uint8Array[] = []
-    for await (const chunk of stream) {
-      chunks.push(chunk)
-    }
-    const buffer = Buffer.concat(chunks)
+    // Generate PDF using createElement to avoid JSX parsing issues
+    const pdfDocument = createElement(AssessmentReport, { data: reportData })
+    const buffer = await renderToBuffer(pdfDocument)
 
     // Return PDF
     return new NextResponse(buffer, {
