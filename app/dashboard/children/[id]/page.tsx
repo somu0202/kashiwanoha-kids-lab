@@ -13,8 +13,9 @@ import { ArrowLeft, Calendar, TrendingUp } from 'lucide-react'
 export default async function ChildDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const supabase = await createClient()
 
   const {
@@ -29,7 +30,7 @@ export default async function ChildDetailPage({
   const { data: child, error: childError } = await supabase
     .from('children')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (childError || !child) {
@@ -51,7 +52,7 @@ export default async function ChildDetailPage({
         full_name
       )
     `)
-    .eq('child_id', params.id)
+    .eq('child_id', id)
     .order('assessed_at', { ascending: false })
 
   // Get parent invitations for this child
@@ -63,7 +64,7 @@ export default async function ChildDetailPage({
         full_name
       )
     `)
-    .eq('child_id', params.id)
+    .eq('child_id', id)
     .order('created_at', { ascending: false })
 
   // Get parent relationships
@@ -76,7 +77,7 @@ export default async function ChildDetailPage({
         email
       )
     `)
-    .eq('child_id', params.id)
+    .eq('child_id', id)
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -98,7 +99,7 @@ export default async function ChildDetailPage({
         </div>
         <div className="flex gap-2">
           <InviteParentDialog
-            childId={params.id}
+            childId={id}
             childName={`${childData.last_name} ${childData.first_name}`}
           />
           <Button asChild className="bg-sky-500 hover:bg-sky-600">

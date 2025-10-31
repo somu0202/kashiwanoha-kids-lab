@@ -15,8 +15,9 @@ import Link from 'next/link'
 export default async function AssessmentDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const supabase = await createClient()
 
   const { data: assessment, error } = await supabase
@@ -32,7 +33,7 @@ export default async function AssessmentDetailPage({
         full_name
       )
     `)
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error || !assessment) {
