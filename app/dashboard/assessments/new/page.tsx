@@ -15,10 +15,12 @@ export default async function NewAssessmentPage({
 
   if (!childId) {
     // Show child selector if no child specified
-    const { data: children } = await supabase
+    const { data: children, error: childrenError } = await supabase
       .from('children')
       .select('*')
       .order('last_name', { ascending: true })
+
+    console.log('Children query result:', { children, childrenError })
 
     return (
       <div className="max-w-4xl mx-auto space-y-6">
@@ -29,7 +31,12 @@ export default async function NewAssessmentPage({
 
         <Card>
           <CardContent className="pt-6">
-            {!children || children.length === 0 ? (
+            {childrenError ? (
+              <div className="text-center py-8">
+                <p className="text-red-600 mb-2">エラーが発生しました</p>
+                <p className="text-sm text-gray-600">{childrenError.message}</p>
+              </div>
+            ) : !children || children.length === 0 ? (
               <p className="text-gray-500 text-center py-8">
                 まだ子どもが登録されていません。
                 <br />
