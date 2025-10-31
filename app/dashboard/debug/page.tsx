@@ -26,11 +26,16 @@ export default async function DebugPage() {
     .select('*')
     .order('last_name', { ascending: true })
 
-  // Get role check
-  const { data: roleCheck, error: roleError } = await supabase.rpc(
-    'get_user_role',
-    { user_id: user.id }
-  )
+  // Try to call get_user_role function directly
+  let roleCheck = null
+  let roleError = null
+  try {
+    const result = await supabase.rpc('get_user_role', { user_id: user.id } as any)
+    roleCheck = result.data
+    roleError = result.error
+  } catch (e: any) {
+    roleError = { message: e.message }
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
