@@ -117,13 +117,15 @@ export async function POST(request: Request) {
     }
 
     // Update invitation status
-    const { error: updateError } = (await supabase
-      .from('parent_invitations')
+    const updateResult: any = await (supabase
+      .from('parent_invitations') as any)
       .update({
         status: 'accepted',
         accepted_at: new Date().toISOString(),
       })
-      .eq('token', token)) as any
+      .eq('token', token)
+    
+    const { error: updateError } = updateResult
 
     if (updateError) {
       console.error('Invitation update error:', updateError)

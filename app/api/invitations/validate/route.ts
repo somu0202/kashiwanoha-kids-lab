@@ -54,9 +54,9 @@ export async function GET(request: Request) {
 
     if (now > expiresAt || invitationData.status === 'expired') {
       // Update status to expired
-      await supabase
-        .from('parent_invitations')
-        .update({ status: 'expired' } as any)
+      const updateResult: any = await (supabase
+        .from('parent_invitations') as any)
+        .update({ status: 'expired' })
         .eq('token', token)
 
       return NextResponse.json(

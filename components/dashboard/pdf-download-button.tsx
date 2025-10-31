@@ -24,8 +24,8 @@ interface PDFDownloadButtonProps {
       run: number
       balance_beam: number
       jump: number
-      throw_ball: number
-      catch_ball: number
+      throw: number
+      catch: number
       dribble: number
       roll: number
     }
